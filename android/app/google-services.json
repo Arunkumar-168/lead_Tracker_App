@@ -1,0 +1,49 @@
+{
+  "project_info": {
+    "project_number": "76601109599",
+    "firebase_url": "https://leads-tracker-app-1e6be-default-rtdb.firebaseio.com",
+    "project_id": "leads-tracker-app-1e6be",
+    "storage_bucket": "leads-tracker-app-1e6be.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:76601109599:android:32f206c4a62a1cf855ffea",
+        "android_client_info": {
+          "package_name": "com.example.leads_tracker_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCZmzKdSNMKX6E4Pp2Fh6R7xxliaAiOz6E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:76601109599:android:011f2a8d941e821255ffea",
+        "android_client_info": {
+          "package_name": "com.example.tracker_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCZmzKdSNMKX6E4Pp2Fh6R7xxliaAiOz6E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
