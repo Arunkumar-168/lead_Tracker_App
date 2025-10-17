@@ -12,39 +12,94 @@ import 'package:tracker_app/app/Theme.dart';
 import 'package:tracker_app/firebase_options.dart';
 
 const AndroidNotificationChannel channel = AndroidNotificationChannel(
-  'high_importance_channel',
-  'High Importance Notifications',
+  'high_importance_channel', // id
+  'High Importance Notifications', // name
   description: 'This channel is used for important notifications.',
   importance: Importance.high,
 );
+
+/// Initialize local notifications plugin
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
 FlutterLocalNotificationsPlugin();
+
+///  Background message handler
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  print("Background message: ${message.notification?.title}");
+  print(" Background message: ${message.notification?.title}");
 }
 
-void main() async {
+/// Main function
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Firebase
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  // Firestore offline persistence
   FirebaseFirestore.instance.settings = const Settings(persistenceEnabled: true);
+
+  // Shared Preferences
   final sharedPreferences = await SharedPreferences.getInstance();
   Get.put<SharedPreferences>(sharedPreferences);
+
+  //Setup background messaging
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-  String? token = await FirebaseMessaging.instance.getToken();
-  print("Device FCM Token: $token");
+
+  //Create Android channel
+  await flutterLocalNotificationsPlugin
+      .resolvePlatformSpecificImplementation<
+      AndroidFlutterLocalNotificationsPlugin>()
+      ?.createNotificationChannel(channel);
+
+  //Initialize local notifications
   const AndroidInitializationSettings initSettingsAndroid =
   AndroidInitializationSettings('@mipmap/ic_launcher');
   const InitializationSettings initSettings =
   InitializationSettings(android: initSettingsAndroid);
   await flutterLocalNotificationsPlugin.initialize(initSettings);
+
+  // Handle foreground messages
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    print("message: ${message.notification?.title}");
+    RemoteNotification? notification = message.notification;
+    AndroidNotification? android = message.notification?.android;
+
+    if (notification != null && android != null) {
+      flutterLocalNotificationsPlugin.show(
+        notification.hashCode,
+        notification.title,
+        notification.body,
+        NotificationDetails(
+          android: AndroidNotificationDetails(
+            channel.id,
+            channel.name,
+            channelDescription: channel.description,
+            importance: Importance.high,
+            priority: Priority.high,
+            icon: '@mipmap/ic_launcher',
+          ),
+        ),
+      );
+    }
+  });
+  // Handle when app opened from terminated/background state
+  FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+    print(" Notification clicked: ${message.notification?.title}");
+  });
+  //Get FCM token
+  String? token = await FirebaseMessaging.instance.getToken();
+  print(" Device FCM Token: $token");
+
+  // Start app
   User? startUser = FirebaseAuth.instance.currentUser;
   runApp(MyApp(startUser: startUser));
 }
 
+/// Main App Widget
 class MyApp extends StatelessWidget {
   final User? startUser;
   const MyApp({super.key, this.startUser});
+
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
